@@ -143,10 +143,32 @@
                 </div>
             </div>
         </div>
+
+        <div class="card mt-4 animate__animated animate__fadeIn" id="webrtc-section">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="m-0"><i class="bi bi-shield-exclamation me-2"></i>WebRTC</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <span class="info-label">Локальный IP:</span>
+                    <span id="local-ip" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Публичный IP:</span>
+                    <span id="public-ip" class="info-value">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Статус:</span>
+                    <span id="webrtc-status" class="info-value">-</span>
+                </div>
+            </div>
+        </div>
     </div>
-    <script src="script.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script src="webrtc.js"></script>
 </body>
 </html>
