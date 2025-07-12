@@ -5,76 +5,106 @@ function checkDNSLeak() {
     $('#dns-servers').text('Идёт проверка...');
     $('#run-dnsleak-test').prop('disabled', true);
 
-    const testId = Math.floor(Math.random() * 1000000);
-    const testUrls = [
-        `https://dnsleaktest.com/api/dnsleak?test=${testId}`,
-        `https://www.dnsleaktest.com/json/${testId}`
+    const testDomains = [
+        // Публичные DNS-серверы
+        'dns.google/resolve',
+        'cloudflare-dns.com/dns-query',
+        'doh.opendns.com/dns-query',
+        'dns.quad9.net/dns-query',
+        'dns.adguard.com/dns-query',
+        'dns.nextdns.io/dns-query',
+        'doh.cleanbrowsing.org/doh/family-filter/dns-query',
+        'dns.microsoft.com/resolve',
+        'doh.libredns.gr/dns-query',
+        'dns.dns-over-https.com/dns-query'
     ];
 
-    let currentApi = 0;
+    const testApis = [
+        'https://www.dnsleaktest.com/api/dnsleak',
+        'https://api.dnsleak.com/v1/leaktest',
+        'https://dnsleak.express/api/v1/detect'
+    ];
 
-    const tryApi = () => {
-        if (currentApi >= testUrls.length) {
-            fallbackMethod();
-            return;
+    let completedTests = 0;
+    const uniqueIps = new Set();
+    const testId = Date.now();
+
+    const checkCompletion = () => {
+        if (completedTests >= (testDomains.length + testApis.length)) {
+            const ips = Array.from(uniqueIps);
+            $('#dns-servers').html(ips.join('<br>'));
+            
+            if (ips.length > 2) {
+                $('#dnsleak-status').html(`<span class="text-danger">Обнаружена утечка (${ips.length} DNS)</span>`);
+            } else {
+                $('#dnsleak-status').html('<span class="text-success">Утечек не обнаружено</span>');
+            }
+            $('#run-dnsleak-test').prop('disabled', false);
         }
+    };
 
+    // Проверка DNS-over-HTTPS
+    testDomains.forEach(domain => {
         $.ajax({
-            url: testUrls[currentApi],
+            url: `https://${domain}?name=example.com&type=A&cd=false&edns_client_subnet=0/0`,
             type: 'GET',
-            dataType: 'json',
+            headers: { 'Accept': 'application/dns-json' },
             success: (data) => {
-                let servers = [];
-                if (data.dns?.length) servers = data.dns.map(s => s.ip || s.address);
-                else if (data.servers?.length) servers = data.servers.map(s => s.ip);
-
-                if (servers.length) {
-                    updateResults(servers);
-                } else {
-                    currentApi++;
-                    tryApi();
+                if (data.Answer) {
+                    data.Answer.forEach(answer => {
+                        if (answer.data && answer.data.match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/)) {
+                            uniqueIps.add(answer.data);
+                        }
+                    });
                 }
+                completedTests++;
+                checkCompletion();
             },
             error: () => {
-                currentApi++;
-                tryApi();
+                completedTests++;
+                checkCompletion();
             }
         });
-    };
+    });
 
-    const fallbackMethod = () => {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = 'https://www.dnsleaktest.com/';
-        document.body.appendChild(iframe);
-
-        window.addEventListener('message', (e) => {
-            if (e.origin === 'https://www.dnsleaktest.com' && e.data.servers) {
-                updateResults(e.data.servers);
+    testApis.forEach(api => {
+        $.ajax({
+            url: `${api}?test=${testId}`,
+            type: 'GET',
+            success: (data) => {
+                if (data.ips) {
+                    data.ips.forEach(ip => uniqueIps.add(ip));
+                } else if (data.servers) {
+                    data.servers.forEach(server => uniqueIps.add(server.ip));
+                }
+                completedTests++;
+                checkCompletion();
+            },
+            error: () => {
+                completedTests++;
+                checkCompletion();
             }
-        }, false);
+        });
+    });
 
-        setTimeout(() => {
-            if ($('#dnsleak-status').text().includes('Проверка')) {
-                $('#dnsleak-status').html('<span class="text-warning">Не удалось проверить</span>');
-                $('#dns-servers').text('Ошибка получения данных');
-                $('#run-dnsleak-test').prop('disabled', false);
-            }
-            iframe.remove();
-        }, 10000);
-    };
+    // Fallback 
+    setTimeout(() => {
+        if ($('#dnsleak-status').text().includes('Проверка')) {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'https://www.dnsleaktest.com/';
+            document.body.appendChild(iframe);
 
-    const updateResults = (servers) => {
-        $('#dns-servers').html(servers.join('<br>'));
-        if (servers.length > 3) {
-            $('#dnsleak-status').html('<span class="text-danger">Обнаружена утечка DNS</span>');
-        } else {
-            $('#dnsleak-status').html('<span class="text-success">Утечек не обнаружено</span>');
+            window.addEventListener('message', (e) => {
+                if (e.origin === 'https://www.dnsleaktest.com' && e.data.servers) {
+                    e.data.servers.forEach(ip => uniqueIps.add(ip));
+                    checkCompletion();
+                }
+            }, false);
+
+            setTimeout(() => iframe.remove(), 10000);
         }
-        $('#run-dnsleak-test').prop('disabled', false);
-    };
-
-    tryApi();
+    }, 5000);
 }
 
 $(document).ready(function() {
