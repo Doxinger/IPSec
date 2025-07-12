@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    initTheme();
+    setupThemeToggle();
     detectBrowserAndOS();
     detectDeviceInfo();
     getIPAddress();
@@ -6,15 +8,28 @@ $(document).ready(function() {
     checkBattery();
     checkTelegram();
     setInterval(updateLocalTime, 1000);
-    
-    $('.card-header').append('<button class="btn btn-sm btn-light float-end refresh-btn">Обновить</button>');
-    
-    $(document).on('click', '.refresh-btn', function() {
-        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...');
-        getIPAddress();
-        checkBattery();
-    });
 });
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    $('html').attr('data-bs-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function setupThemeToggle() {
+    $('#theme-toggle').click(function() {
+        const currentTheme = $('html').attr('data-bs-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        $('html').attr('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+}
+
+function updateThemeIcon(theme) {
+    const icon = theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill';
+    $('#theme-toggle i').attr('class', 'bi ' + icon);
+}
 
 function detectBrowserAndOS() {
     const ua = navigator.userAgent;
@@ -73,7 +88,6 @@ function getIPAddress() {
         },
         error: () => {
             $('#ip-address').html('<span class="text-danger">Не удалось определить</span>');
-            $('.refresh-btn').html('Обновить');
             getGeoInfo();
         }
     });
@@ -92,7 +106,6 @@ function getGeoInfo(ip) {
         if (currentApi >= apis.length) {
             $('#city, #country, #isp').html('<span class="text-danger">Не удалось определить</span>');
             $('#coordinates').html('<span class="text-danger">Не удалось определить</span>');
-            $('.refresh-btn').html('Обновить');
             return;
         }
 
@@ -118,7 +131,6 @@ function getGeoInfo(ip) {
                 } else {
                     $('#coordinates').html('<span class="text-warning">Координаты не найдены</span>');
                 }
-                $('.refresh-btn').html('Обновить');
             },
             error: () => {
                 currentApi++;
@@ -179,4 +191,4 @@ function checkTelegram() {
     } else {
         $('#telegram-info').text('Не обнаружено');
     }
-}
+                                    }
