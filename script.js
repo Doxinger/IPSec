@@ -84,37 +84,73 @@ function getIPAddress() {
         error: function() {
             $('#ip-address').html('<span class="text-danger">Не удалось определить</span>');
             $('.refresh-btn').html('Обновить');
+            getGeoInfo();
         }
     });
 }
 
 function getGeoInfo(ip) {
-    $.ajax({
-        url: `https://ipapi.co/${ip}/json/`,
-        type: 'GET',
-        dataType: 'json',
-        beforeSend: function() {
-            $('#city, #country, #isp, #coordinates').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...');
-        },
-        success: function(data) {
-            $('#city').text(data.city || 'Неизвестно');
-            $('#country').text(data.country_name || 'Неизвестно');
-            $('#isp').text(data.org || 'Неизвестно');
-            
-            if (data.latitude && data.longitude) {
-                $('#coordinates').text(`${data.latitude}, ${data.longitude}`);
-                showMap(data.latitude, data.longitude, data.city);
-            } else {
-                $('#coordinates').html('<span class="text-warning">Не удалось определить</span>');
-            }
-            $('.refresh-btn').html('Обновить');
-        },
-        error: function() {
+    const apis = [
+        `https://ipapi.co/${ip || ''}/json/`,
+        `https://ipwho.is/${ip || ''}`,
+        'https://freeipapi.com/api/json'
+    ];
+
+    let currentApi = 0;
+
+    const tryNextApi = function() {
+        if (currentApi >= apis.length) {
             $('#city, #country, #isp').html('<span class="text-danger">Не удалось определить</span>');
             $('#coordinates').html('<span class="text-danger">Не удалось определить</span>');
             $('.refresh-btn').html('Обновить');
+            return;
         }
-    });
+
+        $.ajax({
+            url: apis[currentApi],
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#city, #country, #isp, #coordinates').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...');
+            },
+            success: function(data) {
+                let city, country, isp, lat, lon;
+                
+                // Обработка разных апишек
+                if (data.city !== undefined) {
+                    city = data.city;
+                    country = data.country_name || data.country;
+                    isp = data.org || data.connection?.isp;
+                    lat = data.latitude;
+                    lon = data.longitude;
+                } else if (data.ipName !== undefined) {
+                    city = data.city;
+                    country = data.countryName;
+                    isp = data.isp;
+                    lat = data.latitude;
+                    lon = data.longitude;
+                }
+
+                $('#city').text(city || 'Неизвестно');
+                $('#country').text(country || 'Неизвестно');
+                $('#isp').text(isp || 'Неизвестно');
+                
+                if (lat && lon) {
+                    $('#coordinates').text(`${lat}, ${lon}`);
+                    showMap(lat, lon, city);
+                } else {
+                    $('#coordinates').html('<span class="text-warning">Координаты не найдены</span>');
+                }
+                $('.refresh-btn').html('Обновить');
+            },
+            error: function() {
+                currentApi++;
+                tryNextApi();
+            }
+        });
+    };
+
+    tryNextApi();
 }
 
 function showMap(lat, lng, city) {
@@ -177,4 +213,4 @@ function checkTelegram() {
     } else {
         $('#telegram-info').text('Не обнаружено');
     }
-                                  }
+          }
