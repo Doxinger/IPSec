@@ -1,31 +1,9 @@
-$(document).ready(function() {
-    checkWebRTCLeak();
-});
-
 function checkWebRTCLeak() {
-    const webrtcSection = `
-    <div class="card mt-4 animate__animated animate__fadeIn">
-        <div class="card-header bg-warning text-dark">
-            <h3 class="m-0"><i class="bi bi-shield-exclamation me-2"></i>WebRTC</h3>
-        </div>
-        <div class="card-body">
-            <div class="info-item">
-                <span class="info-label">Локальный IP:</span>
-                <span id="local-ip" class="info-value">Проверка...</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Публичный IP:</span>
-                <span id="public-ip" class="info-value">Проверка...</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Статус:</span>
-                <span id="webrtc-status" class="info-value">Проверка...</span>
-            </div>
-        </div>
-    </div>
-    `;
-    
-    $('.container').append(webrtcSection);
+    if (!document.getElementById('webrtc-section')) return;
+
+    $('#local-ip').text('Проверка...');
+    $('#public-ip').text('Проверка...');
+    $('#webrtc-status').text('Проверка...');
 
     try {
         const rtcConfig = {
@@ -82,4 +60,8 @@ function checkWebRTCLeak() {
     } catch (e) {
         $('#webrtc-status').html('<span class="text-danger">WebRTC не поддерживается</span>');
     }
-        } 
+}
+
+$(document).ready(function() {
+    checkWebRTCLeak();
+});
