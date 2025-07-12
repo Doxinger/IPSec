@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Информация об устройстве</title>
+    <title>IPSec</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
@@ -20,8 +20,6 @@
                 </button>
             </div>
         </header>
-
-        <!-- Основная информация -->
         <div class="card animate__animated animate__fadeIn mb-4">
             <div class="card-header bg-primary text-white">
                 <h3 class="m-0"><i class="bi bi-pc-display me-2"></i>Основная информация</h3>
@@ -69,7 +67,6 @@
         </div>
 
         <div class="row">
-            <!-- Геолокация -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100 animate__animated animate__fadeIn">
                     <div class="card-header bg-success text-white">
@@ -84,8 +81,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Дополнительная информация -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100 animate__animated animate__fadeIn">
                     <div class="card-header bg-info text-white">
@@ -146,8 +141,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- WebRTC проверка -->
         <div class="card mt-4 animate__animated animate__fadeIn" id="webrtc-section">
             <div class="card-header bg-warning text-dark">
                 <h3 class="m-0"><i class="bi bi-shield-exclamation me-2"></i>WebRTC</h3>
@@ -167,15 +160,12 @@
                 </div>
             </div>
         </div>
-
-        <!-- DNS Leak проверка -->
         <div class="card mt-4 animate__animated animate__fadeIn" id="dnsleak-section">
             <div class="card-header bg-danger text-white">
                 <h3 class="m-0"><i class="bi bi-shield-lock me-2"></i>DNS Leak Test</h3>
             </div>
             <div class="card-body">
                 <div class="info-item">
-                    <p>Временно не работает! </p>
                     <span class="info-label">Статус:</span>
                     <span id="dnsleak-status" class="info-value">-</span>
                 </div>
@@ -188,14 +178,78 @@
                 </button>
             </div>
         </div>
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-purple text-white">
+                <h3 class="m-0"><i class="bi bi-shield-vpn me-2"></i>VPN/Proxy Checker</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <span class="info-label">Статус:</span>
+                    <span id="vpn-status">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Тип соединения:</span>
+                    <span id="connection-type">-</span>
+                </div>
+                <button id="check-vpn-btn" class="btn btn-sm btn-outline-purple mt-2">
+                    <i class="bi bi-arrow-repeat me-1"></i>Проверить
+                </button>
+            </div>
+        </div>
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-indigo text-white">
+                <h3 class="m-0"><i class="bi bi-gpu-card me-2"></i>WebGL Info</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <span class="info-label">Статус:</span>
+                    <span id="webgl-status">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Рендерер:</span>
+                    <span id="webgl-renderer">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Производитель:</span>
+                    <span id="webgl-vendor">-</span>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-teal text-white">
+                <h3 class="m-0"><i class="bi bi-database me-2"></i>Storage Analyzer</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <span class="info-label">Куки:</span>
+                    <span id="cookies-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">LocalStorage:</span>
+                    <span id="local-storage-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">SessionStorage:</span>
+                    <span id="session-storage-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">IndexedDB:</span>
+                    <span id="indexeddb-status">-</span>
+                </div>
+                <button id="refresh-storage-btn" class="btn btn-sm btn-outline-teal mt-2">
+                    <i class="bi bi-arrow-repeat me-1"></i>Обновить
+                </button>
+            </div>
+        </div>
     </div>
-
-    <!-- скрипты -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="script.js"></script>
     <script src="webrtc.js"></script>
     <script src="dnsleak.js"></script>
+    <script src="vpnchecker.js"></script>
+    <script src="webglchecker.js"></script>
+    <script src="storagechecker.js"></script>
 </body>
-    </html>
+                                    </html>
