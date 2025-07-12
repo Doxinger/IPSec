@@ -35,7 +35,6 @@ function updateThemeIcon(theme) {
 function requestGeolocation() {
     if ("geolocation" in navigator) {
         $('#coordinates').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Запрос разрешения...');
-        
         navigator.geolocation.getCurrentPosition(
             function(position) {
                 const lat = position.coords.latitude;
@@ -116,33 +115,104 @@ function detectDeviceInfo() {
 }
 
 function getIPAddress() {
-    $.ajax({
-        url: 'https://api.ipify.org?format=json',
-        type: 'GET',
-        beforeSend: () => $('#ip-address').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...'),
-        success: (data) => {
-            $('#ip-address').text(data.ip);
-            getGeoInfo(data.ip);
-        },
-        error: () => $('#ip-address').html('<span class="text-danger">Не удалось определить</span>')
-    });
+    const ipApis = [
+        'https://api.ipify.org?format=json',
+        'https://api.my-ip.io/ip.json',
+        'https://ipinfo.io/json',
+        'https://api.ip.sb/geoip'
+    ];
+
+    let currentApi = 0;
+
+    const tryNextApi = () => {
+        if (currentApi >= ipApis.length) {
+            $('#ip-address').html('<span class="text-danger">Не удалось определить</span>');
+            getGeoInfo();
+            return;
+        }
+
+        $.ajax({
+            url: ipApis[currentApi],
+            type: 'GET',
+            beforeSend: () => $('#ip-address').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...'),
+            success: (data) => {
+                const ip = data.ip || data.ip_address;
+                if (ip) {
+                    $('#ip-address').text(ip);
+                    getGeoInfo(ip);
+                } else {
+                    currentApi++;
+                    tryNextApi();
+                }
+            },
+            error: () => {
+                currentApi++;
+                tryNextApi();
+            }
+        });
+    };
+
+    tryNextApi();
 }
 
 function getGeoInfo(ip) {
-    $.ajax({
-        url: `https://ipapi.co/${ip||''}/json/`,
-        type: 'GET',
-        beforeSend: () => $('#city, #country, #isp').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...'),
-        success: (data) => {
-            $('#city').text(data.city || 'Неизвестно');
-            $('#country').text(data.country_name || 'Неизвестно');
-            $('#isp').text(data.org || 'Неизвестно');
-            if (data.latitude && data.longitude) {
-                showMap(data.latitude, data.longitude, data.city);
+    const geoApis = [
+        `https://ipapi.co/${ip||''}/json/`,
+        `https://ipwho.is/${ip||''}`,
+        `https://freeipapi.com/api/json/${ip||''}`,
+        `https://api.ipgeolocation.io/ipgeo?apiKey=demo&ip=${ip||''}`,
+        `https://geo.ipify.org/api/v2/country,city?apiKey=at_XJg7KlbBQ0XWYqPJt3Zg6w3h4W5Qx&ipAddress=${ip||''}`
+    ];
+
+    let currentApi = 0;
+
+    const tryNextApi = () => {
+        if (currentApi >= geoApis.length) {
+            $('#city, #country, #isp').html('<span class="text-danger">Не удалось определить</span>');
+            return;
+        }
+
+        $.ajax({
+            url: geoApis[currentApi],
+            type: 'GET',
+            beforeSend: () => $('#city, #country, #isp').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...'),
+            success: (data) => {
+                let city, country, isp, lat, lon;
+
+                if (data.city !== undefined) {
+                    city = data.city;
+                    country = data.country_name || data.country;
+                    isp = data.org || data.connection?.isp;
+                    lat = data.latitude;
+                    lon = data.longitude;
+                } else if (data.ipName !== undefined) {
+                    city = data.city;
+                    country = data.countryName;
+                    isp = data.isp;
+                    lat = data.latitude;
+                    lon = data.longitude;
+                } else if (data.location !== undefined) {
+                    city = data.location.city;
+                    country = data.location.country;
+                    isp = data.isp;
+                    lat = data.location.lat;
+                    lon = data.location.lng;
+                }
+
+                $('#city').text(city || 'Неизвестно');
+                $('#country').text(country || 'Неизвестно');
+                $('#isp').text(isp || 'Неизвестно');
+
+                if (lat && lon) showMap(lat, lon, city);
+            },
+            error: () => {
+                currentApi++;
+                tryNextApi();
             }
-        },
-        error: () => $('#city, #country, #isp').html('<span class="text-danger">Не удалось определить</span>')
-    });
+        });
+    };
+
+    tryNextApi();
 }
 
 function showMap(lat, lng, city) {
@@ -183,4 +253,4 @@ function checkTelegram() {
             $('#tg-language').text(u.language_code || 'Не указано');
         }
     }
-}
+        }
