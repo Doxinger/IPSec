@@ -5,10 +5,10 @@ function generateFingerprint() {
     const getWebGLInfo = () => {
         if (!gl) return null;
         const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        return {
-            renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : null,
-            vendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : null
-        };
+        return debugInfo ? {
+            renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
+            vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
+        } : null;
     };
 
     const getCanvasFingerprint = () => {
@@ -39,12 +39,7 @@ function generateFingerprint() {
         dnt: navigator.doNotTrack
     };
 
-    const jsonString = JSON.stringify(components);
-    let hash = 0;
-    for (let i = 0; i < jsonString.length; i++) {
-        hash = (hash << 5) - hash + jsonString.charCodeAt(i);
-        hash |= 0;
-    }
+    const hash = Array.from(JSON.stringify(components)).reduce((h, c) => Math.imul(31, h) + c.charCodeAt(0) | 0, 0);
     
     return {
         hash: Math.abs(hash).toString(36).slice(0, 8),
@@ -54,14 +49,15 @@ function generateFingerprint() {
 
 function displayFingerprint() {
     const {hash, details} = generateFingerprint();
-    document.getElementById('fingerprint-hash').textContent = `Hash: ${hash}`;
-    
+    const hashElement = document.getElementById('fingerprint-hash');
     const detailsContainer = document.getElementById('fingerprint-details');
-    detailsContainer.innerHTML = '';
     
-    for (const [key, value] of Object.entries(details)) {
+    if (hashElement) hashElement.textContent = `Hash: ${hash}`;
+    if (!detailsContainer) return;
+    
+    detailsContainer.innerHTML = Object.entries(details).map(([key, value]) => {
         const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
-        detailsContainer.innerHTML += `
+        return `
             <div class="col-md-6 mb-2">
                 <div class="fingerprint-param p-2 bg-light rounded">
                     <strong class="d-block text-truncate">${key}:</strong>
@@ -69,8 +65,13 @@ function displayFingerprint() {
                 </div>
             </div>
         `;
-    }
+    }).join('');
 }
 
-document.addEventListener('DOMContentLoaded', displayFingerprint);
-document.getElementById('refresh-fingerprint').addEventListener('click', displayFingerprint);
+function initFingerprint() {
+    document.addEventListener('DOMContentLoaded', displayFingerprint);
+    const refreshButton = document.getElementById('refresh-fingerprint');
+    if (refreshButton) refreshButton.addEventListener('click', displayFingerprint);
+}
+
+initFingerprint();
