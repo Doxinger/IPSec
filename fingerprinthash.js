@@ -62,12 +62,15 @@ function displayFingerprint() {
     for (const [key, value] of Object.entries(details)) {
         const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
         detailsContainer.innerHTML += `
-            <div class="col-md-6 fingerprint-param">
-                <strong>${key}:</strong> <span class="text-muted">${valueStr}</span>
+            <div class="col-md-6 mb-2">
+                <div class="fingerprint-param p-2 bg-light rounded">
+                    <strong class="d-block text-truncate">${key}:</strong>
+                    <span class="text-muted small">${valueStr}</span>
+                </div>
             </div>
         `;
     }
 }
 
 document.addEventListener('DOMContentLoaded', displayFingerprint);
-document.getElementById('refresh-fingerprint').addEventListener('click', displayFingerprint); 
+document.getElementById('refresh-fingerprint').addEventListener('click', displayFingerprint);
