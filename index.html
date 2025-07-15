@@ -265,31 +265,56 @@
         <div id="canvasHash" class="font-monospace">Вычисление...</div>
     </div>
 </div>
-    <div id="aura-card">
-    <h3>Цифровой аура-отпечаток</h3>
-    <div class="section">
-      <h4>Темпоральный паттерн</h4>
-      <div id="temporal"></div>
+    <div class="card mt-4 animate__animated animate__fadeIn">
+    <div class="card-header bg-dark text-white">
+        <h3 class="m-0"><i class="bi bi-magic me-2"></i>Цифровой аура-отпечаток</h3>
     </div>
-    <div class="section">
-      <h4>Глитч-профиль</h4>
-      <div id="glitch-audio"></div>
-      <div id="glitch-dom"></div>
-      <div id="glitch-math"></div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item mb-3">
+                    <span class="info-label">Темпоральный паттерн:</span>
+                    <span id="temporal-pattern" class="info-value font-monospace">Вычисление...</span>
+                </div>
+                <div class="info-item mb-3">
+                    <span class="info-label">Аудио глитч:</span>
+                    <span id="audio-glitch" class="info-value font-monospace">-</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item mb-3">
+                    <span class="info-label">DOM аномалии:</span>
+                    <span id="dom-glitch" class="info-value font-monospace">-</span>
+                </div>
+                <div class="info-item mb-3">
+                    <span class="info-label">Math отклонения:</span>
+                    <span id="math-glitch" class="info-value font-monospace">-</span>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <div class="info-item mb-3">
+                    <span class="info-label">Квантовый отпечаток:</span>
+                    <span id="quantum-signature" class="info-value font-monospace">-</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item mb-3">
+                    <span class="info-label">Уникальный хэш:</span>
+                    <span id="aura-hash" class="info-value font-monospace text-primary">-</span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-3 text-muted small">
+            <span id="aura-version">v3.1.4</span>
+            <span id="aura-timestamp"></span>
+        </div>
+        <button id="refresh-aura" class="btn btn-sm btn-outline-dark mt-3 w-100">
+            <i class="bi bi-arrow-repeat me-1"></i> Обновить аура-отпечаток
+        </button>
     </div>
-    <div class="section">
-      <h4>Квантовый отпечаток</h4>
-      <div id="quantum"></div>
-    </div>
-    <div class="section">
-      <h4>Уникальный хэш</h4>
-      <div id="aura-hash"></div>
-    </div>
-    <div class="meta">
-      <span id="version"></span>
-      <span id="timestamp"></span>
-    </div>
-    </div>
+</div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
