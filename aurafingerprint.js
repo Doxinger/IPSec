@@ -3,7 +3,10 @@ function generateDigitalAura() {
         const delays = [];
         for (let i = 0; i < 5; i++) {
             const t1 = performance.now();
-            Math.sqrt(Math.random());
+            let sum = 0;
+            for (let j = 0; j < 1000; j++) {
+                sum += Math.sqrt(Math.random());
+            }
             delays.push((performance.now() - t1).toFixed(3));
         }
         return delays.join(':');
@@ -14,32 +17,47 @@ function generateDigitalAura() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
-                osc.connect(ctx.createAnalyser());
+                const analyser = ctx.createAnalyser();
+                osc.connect(analyser);
                 osc.start();
-                const data = new Uint8Array(1);
+                const data = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(data);
                 osc.disconnect();
-                return data.join('-');
+                return data.slice(0, 3).join('-');
             } catch { return 'error'; }
         })(),
         dom: (() => {
             try {
                 const el = document.createElement('div');
-                el.innerHTML = '<svg><style>@media {}</style>';
-                return [el.innerHTML.length % 7];
+                el.innerHTML = '<svg><style>@media all {}</style>';
+                return [el.innerHTML.length % 9];
             } catch { return ['error']; }
         })(),
-        math: Array(3).fill().map((_,i) => Math.random() * (i+1) % 0.5 > 0.25 ? 1 : 0)
+        math: Array.from({length: 3}, (_, i) => 
+            Math.random() > 0.5 + (i * 0.1) ? 1 : 0
+        )
     });
 
-    const getQuantumSignature = () => Array(3).fill().map(() => Math.floor(Math.random() * 10)).join('');
+    const getQuantumSignature = () => {
+        const results = [];
+        for (let i = 0; i < 3; i++) {
+            const start = performance.now();
+            const arr = new Array(1000).fill(null).map(() => 
+                Math.random() * (i+1) / (performance.now() - start + 1)
+            );
+            results.push(arr.filter(x => x > 0.5).length % 10);
+        }
+        return results.join('');
+    };
 
     const hashString = str => {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
-            hash = ((hash << 5) - hash) + str.charCodeAt(i);
-            hash |= 0;
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
         }
-        return Math.abs(hash).toString(16).padStart(8,'0');
+        return Math.abs(hash).toString(16).padStart(8, '0');
     };
 
     const temporal = getTemporalPattern();
@@ -53,22 +71,7 @@ function generateDigitalAura() {
         glitches,
         quantum,
         hash,
-        version: '3.0',
+        version: '3.2.0',
         timestamp: new Date().toISOString()
     };
 }
-
-function updateAuraCard() {
-    const aura = generateDigitalAura();
-    document.getElementById('temporal-pattern').textContent = aura.temporal;
-    document.getElementById('audio-glitch').textContent = aura.glitches.audio;
-    document.getElementById('dom-glitch').textContent = `[${aura.glitches.dom}]`;
-    document.getElementById('math-glitch').textContent = `[${aura.glitches.math}]`;
-    document.getElementById('quantum-signature').textContent = aura.quantum;
-    document.getElementById('aura-hash').textContent = aura.hash;
-    document.getElementById('aura-version').textContent = `v${aura.version}`;
-    document.getElementById('aura-timestamp').textContent = aura.timestamp;
-}
-
-document.addEventListener('DOMContentLoaded', updateAuraCard);
-document.getElementById('refresh-aura')?.addEventListener('click', updateAuraCard);
