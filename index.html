@@ -197,6 +197,36 @@
             </div>
         </div>
         <div class="card mt-4 animate__animated animate__fadeIn">
+  <div class="card-header bg-dark text-white">
+    <h3 class="m-0"><i class="bi bi-incognito me-2"></i>Проверка Tor</h3>
+  </div>
+  <div class="card-body">
+    <div class="info-item mb-3">
+      <span class="info-label">Статус:</span>
+      <span id="tor-status" class="info-value">Проверка...</span>
+    </div>
+    <div class="info-item mb-3">
+      <span class="info-label">Ваш IP:</span>
+      <span id="tor-ip" class="info-value font-monospace">-</span>
+    </div>
+    <div class="info-item mb-3">
+      <span class="info-label">Страна:</span>
+      <span id="tor-country" class="info-value">-</span>
+    </div>
+    <div class="info-item mb-3">
+      <span class="info-label">Exit-узел:</span>
+      <span id="tor-node" class="info-value font-monospace">-</span>
+    </div>
+    <div class="info-item mb-3">
+      <span class="info-label">Последняя проверка:</span>
+      <span id="tor-check-time" class="info-value">-</span>
+    </div>
+    <button id="run-tor-check" class="btn btn-sm btn-outline-dark w-100 mt-2">
+      <i class="bi bi-arrow-repeat me-1"></i> Проверить снова
+    </button>
+  </div>
+        </div>
+        <div class="card mt-4 animate__animated animate__fadeIn">
             <div class="card-header bg-indigo text-white">
                 <h3 class="m-0"><i class="bi bi-gpu-card me-2"></i>WebGL Info</h3>
             </div>
@@ -322,6 +352,7 @@
     <script src="webrtc.js"></script>
     <script src="dnsleak.js"></script>
     <script src="vpnchecker.js"></script>
+    <script src="tor.js"></script>
     <script src="webglchecker.js"></script>
     <script src="storagechecker.js"></script>
     <script src="fingerprinthash.js"></script>
